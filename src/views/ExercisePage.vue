@@ -4,9 +4,7 @@
 
     <h2>Partie 1 : Les fonctions</h2>
 
-    <p>
-      {{ md }}
-    </p>
+    <div v-html="statement" />
 
     <app-exercise
       :initial-code="initialCode"
@@ -17,11 +15,16 @@
 </template>
 
 <script>
+import { Remarkable } from 'remarkable'
+
 import AppExercise from '@/components/AppExercise.vue'
 import { ref } from '@vue/runtime-core'
 import testCodeRaw from '@/assets/exercises/fn-one-test.js?raw'
 import initialCodeRaw from '@/assets/exercises/fn-one-init.js?raw'
-import md from '@/assets/exercises/fn-one-statement.md?raw'
+import statementRaw from '@/assets/exercises/fn-one-statement.md?raw'
+
+const md = new Remarkable()
+const statement = md.render(statementRaw)
 
 // const getRawCode = url => fetch('/assets' + url).then(res => res.text())
 
@@ -46,7 +49,7 @@ export default {
     return ({
       testCode,
       initialCode,
-      md,
+      statement,
     })
   },
 }
