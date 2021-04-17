@@ -1,6 +1,6 @@
 <template>
   <button
-    class="btn"
+    :class="{btn: true, secondary}"
   >
     {{ text }}
   </button>
@@ -14,19 +14,19 @@ defineProps({
     type: String,
     default: 'OK',
   },
+  secondary: Boolean,
 })
 </script>
 
 <style scoped>
 .btn {
-  font-weight: 600;
+  @apply  rounded  font-semibold  uppercase  cursor-pointer  p-2;
   background-color: var(--ok-color);
   color: var(--almost-white);
-  padding: 1em;
-  text-transform: uppercase;
-  border: none;
-  border-radius: 5px;
-  margin: 1em;
-  cursor: pointer;
 }
-</style>
+
+.secondary {
+  background-color: white;
+  color: var(--ok-color);
+  border-color: var(--ok-color);
+}</style>

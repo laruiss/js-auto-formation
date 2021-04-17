@@ -25,9 +25,12 @@
     "nano-assign": "^1.0.1",
     "remarkable": "^2.0.1",
     "tailwindcss": "^2.1.1",
+    "tap-browser-el": "^2.0.0",
     "vue": "^3.0.5",
     "vue-router": "^4.0.5",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "zora": "^4.1.0",
+    "zora-tap-reporter": "^2.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.13.12",

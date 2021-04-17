@@ -6,9 +6,28 @@
       <slot name="goal" />
     </h4>
 
-    <p>
-      <slot name="details" />
-    </p>
+    <h4
+      v-html="statement"
+    />
+
+    <basic-button
+      :text="btnText"
+      secondary
+      @click.prevent="toggleCourse"
+    />
+
+    <div
+      v-if="showCourse"
+      v-html="htmlCourse"
+    />
+
+    <basic-button
+      v-if="showCourse"
+      :text="btnText"
+      secondary
+      @click.prevent="toggleCourse"
+    />
+
     <div class="flex">
       <div class="u-flex-w-1/2  mx-1">
         <p>
@@ -57,7 +76,7 @@
 
 <script>
 import BasicButton from './BasicButton.vue'
-import { ref } from '@vue/runtime-core'
+import { computed, ref } from '@vue/runtime-core'
 import MonacoEditor from '@/components/MonacoEditor'
 
 import {
@@ -65,6 +84,9 @@ import {
   getWrongFeedback,
   getErrorFeedback,
 } from '../utils/index.js'
+
+import { createHarness } from 'zora'
+import { indentedTapReporter } from 'zora-tap-reporter'
 
 export default {
   name: 'AppExercize',
@@ -87,6 +109,14 @@ export default {
       type: String,
       default: 'Titre',
     },
+    htmlCourse: {
+      type: String,
+      default: '',
+    },
+    statement: {
+      type: String,
+      default: '',
+    },
   },
 
   setup (props) {
@@ -105,28 +135,49 @@ export default {
       error.value = ''
     }
 
+    const showCourse = ref(false)
+    const toggleCourse = () => { showCourse.value = !showCourse.value }
+    const btnText = computed(() => (`${showCourse.value ? 'Cacher' : 'Afficher'} les rappels de cours`))
+
+    const evaluate = async () => {
+      resetResultData()
+
+      const harness = createHarness()
+      const { test } = harness
+
+      try {
+          const returnValue = eval(code.value + ';' + testCode.value) // eslint-disable-line
+
+      } catch (err) {
+        intro.value = getErrorFeedback()
+        error.value = err.message
+        return
+      }
+
+      harness.report(indentedTapReporter()).then(() => {
+        // reporting is over: we can release some pending resources
+        console.log('Done!')
+        // or in this case, our test program is for node so we want to set the exit code ourselves in case of failing test.
+        if (harness.pass) {
+          result.value = getRightFeedback()
+          resultClass.value = 'text-green'
+        } else {
+          resultClass.value = 'text-orange'
+          result.value = getWrongFeedback()
+        }
+      })
+    }
+
     return {
+      btnText,
       code,
       intro,
       result,
       resultClass,
       error,
-      async evaluate () {
-        resetResultData()
-        try {
-          const returnValue = eval(code.value + ';' + testCode.value) // eslint-disable-line
-          if (returnValue) {
-            result.value = getRightFeedback()
-            resultClass.value = 'text-green'
-          } else {
-            resultClass.value = 'text-orange'
-            result.value = getWrongFeedback()
-          }
-        } catch (err) {
-          intro.value = getErrorFeedback()
-          error.value = err.message
-        }
-      },
+      showCourse,
+      toggleCourse,
+      evaluate,
     }
   },
 }

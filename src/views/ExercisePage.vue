@@ -7,37 +7,28 @@
 
     <h2>Partie 1 : Les fonctions</h2>
 
-    <div v-html="statement" />
-
     <app-exercise
       :initial-code="initialCode"
       :test-code="testCode"
       title="Les fonctions"
+      :html-course="course"
+      :statement="statement"
     />
   </div>
 </template>
 
 <script>
-import { Remarkable } from 'remarkable'
-import hljs from 'highlight.js/lib/core'
-import javascript from 'highlight.js/lib/languages/javascript'
-import typescript from 'highlight.js/lib/languages/typescript'
-import css from 'highlight.js/lib/languages/css'
-import xml from 'highlight.js/lib/languages/xml'
-import 'highlight.js/styles/github.css'
-
 import AppExercise from '@/components/AppExercise.vue'
 import { onMounted, ref } from '@vue/runtime-core'
 import testCodeRaw from '@/assets/exercises/fn-one-test.js?raw'
 import initialCodeRaw from '@/assets/exercises/fn-one-init.js?raw'
+import courseRaw from '@/assets/exercises/fn-one-course.md?raw'
 import statementRaw from '@/assets/exercises/fn-one-statement.md?raw'
+import { getMarkdownParser } from '@/utils/md-utils'
 
-hljs.registerLanguage('javascript', javascript)
-hljs.registerLanguage('typescript', typescript)
-hljs.registerLanguage('css', css)
-hljs.registerLanguage('xml', xml)
-const md = new Remarkable()
-const statement = md.render(statementRaw)
+const parseMd = getMarkdownParser()
+const course = parseMd(courseRaw)
+const statement = parseMd(statementRaw)
 
 // const getRawCode = url => fetch('/assets' + url).then(res => res.text())
 
@@ -55,21 +46,17 @@ export default {
     },
   },
 
-  setup (props, ctx) {
+  setup () {
     const homeEl = ref(null)
     const testCode = ref(testCodeRaw)
     const initialCode = ref(initialCodeRaw)
 
-    onMounted(() => {
-      [...homeEl.value.querySelectorAll('code.language-javascript')]
-        .forEach(block => hljs.highlightBlock(block))
-    })
-
     return ({
-      testCode,
+      course,
+      homeEl,
       initialCode,
       statement,
-      homeEl,
+      testCode,
     })
   },
 }
