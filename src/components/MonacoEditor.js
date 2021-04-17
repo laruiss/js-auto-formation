@@ -1,14 +1,34 @@
 import { h } from 'vue'
 import assign from 'nano-assign'
 
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+
+self.MonacoEnvironment = {
+  getWorker (_, label) {
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return new cssWorker()
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return new htmlWorker()
+    }
+    if (label === 'json') {
+      return new jsonWorker()
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return new tsWorker()
+    }
+    return new editorWorker()
+  },
+}
+
 export default {
   name: 'MonacoEditor',
 
   props: {
-    original: {
-      type: String,
-      default: '',
-    },
     modelValue: {
       type: String,
       default: '',
@@ -26,7 +46,6 @@ export default {
       type: Object,
       default: () => ({}),
     },
-    diffEditor: Boolean,
   },
 
   emits: ['editorWillMount', 'update:modelValue', 'editorDidMount'],
@@ -43,7 +62,6 @@ export default {
     },
 
     modelValue (newValue) {
-      console.log('new modelValue:', newValue)
       if (this.editor) {
         const editor = this.getModifiedEditor()
         if (newValue !== editor.getValue()) {
@@ -78,9 +96,8 @@ export default {
   async mounted () {
     const monaco = await import('monaco-editor')
     this.monaco = monaco
-    this.$nextTick(() => {
-      this.initMonaco(monaco)
-    })
+    await this.$nextTick()
+    this.initMonaco(monaco)
   },
 
   beforeUnmount () {
@@ -89,7 +106,7 @@ export default {
 
   methods: {
     initMonaco (monaco) {
-      this.$emit('editorWillMount', this.monaco)
+      this.$emit('editorWillMount', monaco)
 
       const options = assign(
         {
@@ -101,23 +118,7 @@ export default {
         this.options,
       )
 
-      if (this.diffEditor) {
-        this.editor = monaco.editor.createDiffEditor(this.$refs.root, options)
-        const originalModel = monaco.editor.createModel(
-          this.original,
-          this.language,
-        )
-        const modifiedModel = monaco.editor.createModel(
-          this.modelValue,
-          this.language,
-        )
-        this.editor.setModel({
-          original: originalModel,
-          modified: modifiedModel,
-        })
-      } else {
-        this.editor = monaco.editor.create(this.$refs.root, options)
-      }
+      this.editor = monaco.editor.create(this.$refs.root, options)
 
       const editor = this.editor
 
@@ -133,14 +134,6 @@ export default {
 
     getEditor () {
       return this.editor
-    },
-
-    getModifiedEditor () {
-      return this.diffEditor ? this.editor.getModifiedEditor() : this.editor
-    },
-
-    getOriginalEditor () {
-      return this.diffEditor ? this.editor.getOriginalEditor() : this.editor
     },
 
     focus () {

@@ -120,7 +120,6 @@ export default {
   },
 
   setup (props) {
-    console.log('Initial code:', props.initialCode)
     const code = ref(props.initialCode)
     const testCode = ref(props.testCode)
     const intro = ref('')
@@ -143,11 +142,10 @@ export default {
       resetResultData()
 
       const harness = createHarness()
-      const { test } = harness
+      const { test } = harness // eslint-disable-line no-unused-vars
 
       try {
-          const returnValue = eval(code.value + ';' + testCode.value) // eslint-disable-line
-
+        eval(code.value + ';' + testCode.value) // eslint-disable-line no-eval
       } catch (err) {
         intro.value = getErrorFeedback()
         error.value = err.message

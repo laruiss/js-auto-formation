@@ -3,6 +3,7 @@
     :class="{btn: true, secondary}"
   >
     {{ text }}
+    <slot />
   </button>
 </template>
 
@@ -12,7 +13,7 @@ import { defineProps } from '@vue/runtime-core'
 defineProps({
   text: {
     type: String,
-    default: 'OK',
+    default: '',
   },
   secondary: Boolean,
 })
