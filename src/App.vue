@@ -7,6 +7,10 @@
       Home
     </router-link>
     <span class="mx-1">|</span>
+    <router-link to="/fn-one">
+      Exo 1
+    </router-link>
+    <span class="mx-1">|</span>
     <router-link to="/about">
       About
     </router-link>
