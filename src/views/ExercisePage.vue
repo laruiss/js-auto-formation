@@ -1,5 +1,8 @@
 <template>
-  <div class="home">
+  <div
+    ref="homeEl"
+    class="home"
+  >
     <h1>JavaScript</h1>
 
     <h2>Partie 1 : Les fonctions</h2>
@@ -16,13 +19,23 @@
 
 <script>
 import { Remarkable } from 'remarkable'
+import hljs from 'highlight.js/lib/core'
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import css from 'highlight.js/lib/languages/css'
+import xml from 'highlight.js/lib/languages/xml'
+import 'highlight.js/styles/github.css'
 
 import AppExercise from '@/components/AppExercise.vue'
-import { ref } from '@vue/runtime-core'
+import { onMounted, ref } from '@vue/runtime-core'
 import testCodeRaw from '@/assets/exercises/fn-one-test.js?raw'
 import initialCodeRaw from '@/assets/exercises/fn-one-init.js?raw'
 import statementRaw from '@/assets/exercises/fn-one-statement.md?raw'
 
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('css', css)
+hljs.registerLanguage('xml', xml)
 const md = new Remarkable()
 const statement = md.render(statementRaw)
 
@@ -42,14 +55,21 @@ export default {
     },
   },
 
-  setup () {
+  setup (props, ctx) {
+    const homeEl = ref(null)
     const testCode = ref(testCodeRaw)
     const initialCode = ref(initialCodeRaw)
+
+    onMounted(() => {
+      [...homeEl.value.querySelectorAll('code.language-javascript')]
+        .forEach(block => hljs.highlightBlock(block))
+    })
 
     return ({
       testCode,
       initialCode,
       statement,
+      homeEl,
     })
   },
 }
